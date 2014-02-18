@@ -1,0 +1,51 @@
+<%= link_to "Edit", :action => "edit", :controller => "user", :id => "511cb9c4f7e4f327cb000006" %>
+
+<h1>Sign Up</h1>
+
+<%= form_for @user, :as =>:user, :url => user_create_path, :html => {:multipart => true}, :method => "post" do |f| %>
+
+<p>
+  <label>Enter First name</label><br/>
+  <%= f.text_field :first_name %>
+</p>
+
+
+<p>
+  <label>Enter Last Name</label><br/>
+  <%= f.text_field :last_name %>
+</p>
+
+
+
+<p>
+  <label>Enter Email</label><br/>
+  <%= f.email_field :email %>
+</p>
+
+
+
+<p>
+  <label> Enter Password</label><br/>
+  <%= f.password_field :password %>
+</p>
+
+
+
+<p>
+  <label>Upload Profile Picture</label><br/>
+  <%= f.text_area :profile_picture %>
+</p>
+
+
+<p>
+  <label>Upload Profile Picture</label><br/>
+  <%= f.text_area :cover_photo %>
+</p>
+
+
+<p>
+  <%= f.submit :Submit %>
+</p>
+
+
+<% end %>

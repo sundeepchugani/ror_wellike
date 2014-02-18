@@ -1,0 +1,7 @@
+<%= @entity.to_json %>
+
+<%= @entity.each do |image| %>
+
+<%= image_tag image.entity_image.url %>
+
+<% end %>

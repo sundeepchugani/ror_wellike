@@ -1,0 +1,52 @@
+<h1>Save Media</h1>
+<%= form_for @save_media, :as => :save_media, :url => save_media_path, :html => {:multipart=>true}, :method => "post" do |f| %>
+<p>
+<label>Enter _category Name</label><br/>
+<%= f.text_field :entity_name %>
+</p>
+
+<p>
+<label>Select Master Category</label><br/>
+<%= select(:save_media, :master_category_id, @category.collect {|p| [p.category_name,p.id]  }, {:prompt => 'Select master category'})%>
+</p>
+
+<p>
+<label>select User</label><br/>
+<%= select(:save_media, :user_id, @user.collect {|p| [p.first_name,p.id]  }, {:prompt => 'Select User'})%>
+</p>
+
+<p>
+<label>select User</label><br/>
+<%= select(:save_media, :user_category_id, @user_category.collect {|p| [p.id]  }, {:prompt => 'Select User Category'})%>
+</p>
+
+<p>
+<label>Upload category image</label><br/>
+<%= f.text_area :entity_image, :size=> "50x5"  %>
+</p>
+
+<p>
+<label>Information About Category</label><br/>
+<%= f.text_area :information, :size=> "50x5"  %>
+</p>
+
+<p>
+<label>Address of Category</label><br/>
+<%= f.text_area :address, :size=> "50x5" %>
+</p>
+
+<p>
+<label>Category Latitude</label><br/>
+<%= f.text_field :lat %>
+</p>
+
+<p>
+<label>Category Longitude</label><br/>
+<%= f.text_field :long %>
+</p>
+<p>
+  <%= f.submit :submit %>
+</p>
+<% end %>
+
+  

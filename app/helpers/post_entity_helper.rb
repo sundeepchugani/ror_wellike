@@ -1,0 +1,2 @@
+module PostEntityHelper
+end

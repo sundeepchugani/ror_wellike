@@ -1,0 +1,54 @@
+
+<h1>Sign Up</h1>
+
+<%= form_for @user, :as =>:user, :url => update_user_path, :html => {:multipart => true}, :method => "post" do |f| %>
+
+<p>
+  <label>Enter First name</label><br/>
+  <%= f.text_field :first_name %>
+</p>
+<p>
+  <label>Enter Last Name</label><br/>
+  <%= f.text_field :last_name %>
+</p>
+ <%=  f.hidden_field :user_id, :value=>@user.id %>
+<p>
+  <label>Enter Email</label><br/>
+  <%= f.email_field :email %>
+</p>
+<p>
+  <label>Enter Bio</label><br/>
+  <%= f.text_field :bio %>
+</p>
+
+<p>
+  <label>Enter Gender</label><br/>
+  <%= f.text_field :gender %>
+</p>
+
+<p>
+  <label>Enter phone</label><br/>
+  <%= f.text_field :phone %>
+</p>
+
+<p>
+  <label>Enter City</label><br/>
+  <%= f.text_field :city %>
+</p>
+
+<p>
+  <label>Enter DOB</label><br/>
+  <%= f.text_field :birthday %>
+</p>
+
+
+
+
+
+
+<p>
+  <%= f.submit :Submit %>
+</p>
+
+
+<% end %>

@@ -1,0 +1,22 @@
+<h1 align="center" >Master Category List</h1>
+ <table border="1" align="center">
+    <thead>
+        <tr>
+          <th>Serial No.</th>&nbsp;&nbsp;&nbsp;&nbsp;
+            <th>Category Name</th>&nbsp;&nbsp;&nbsp;&nbsp;
+        <th>Category Image</th>&nbsp;&nbsp;&nbsp;&nbsp;
+         <th>Action</th>&nbsp;&nbsp;&nbsp;&nbsp;
+        </tr>
+    </thead>
+    <tbody>
+      <%@count=0%>
+      <% @category_list.each do |category|  %>
+          <tr class="alt">
+              <td> <%=@count+= 1  %></td>
+              <td><%=category.category_name%></td>
+              <td><%=image_tag category.category_image.url, :size=>"50x50"%></td>
+              <td> <%= link_to 'Edit', {:action => 'edit_category', :controller=>"category", :id => category.id} %></td>
+          </tr>
+     <%end%>
+   </tbody>
+ </table>

@@ -1,0 +1,4 @@
+<%= @user.each do |i| %>
+<%=  i.to_json %>
+<%= image_tag i.profile_picture.url %>
+<%end%>

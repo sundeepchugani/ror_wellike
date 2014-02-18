@@ -1,0 +1,450 @@
+require 'will_paginate/array'
+class UserController < ApplicationController
+ def create #<-----comment-----create method use for create new user account or sign up with emailid
+   puts"_---------------------------------------------------====@#{params.inspect}params.inspect"
+    @user = User.new(params[:user])
+    if !(params[:cover_photo]).nil?
+     cover_photo = (params[:cover_photo]).gsub(" ", "+")
+      data = StringIO.new(Base64.decode64(cover_photo))
+      data.class.class_eval { attr_accessor :original_filename, :content_type }
+      data.original_filename = "#{@user.first_name}.jpg"
+      data.content_type = "image/jpg"
+      @user.cover_photo = data
+      @user.cover_photo_url = @user.cover_photo
+      
+    end
+    if !(params[:profile_picture]).nil?  # <..........Comment..... user have profile picture the responce form the user side is base64 format using this method we convert base64 string into image.
+      @prof_pic=(params[:profile_picture]).gsub(" ", "+")
+      data = StringIO.new(Base64.decode64(@prof_pic))
+      data.class.class_eval { attr_accessor :original_filename, :content_type }
+      data.original_filename = "#{@user.first_name}.jpg"
+      data.content_type = "image/jpg"
+      @user.profile_picture = data
+      @user.provider = "email"
+      @user.profile_picture_url = @user.profile_picture
+   end
+      @user.privacy = "0"
+      @user.friend_like_my_activity_for_pn = "1"
+      @user.friend_like_my_activity_for_mail = "0"
+      @user.any_one_like_my_activity_for_pn = "1"
+      @user.any_one_like_my_activity_for_mail = "0"
+      @user.friend_mention_me_in_comment_for_pn = "1"
+      @user.friend_mention_me_in_comment_for_mail = "1"
+      @user.any_one_mention_me_in_comment_for_pn = "1"
+      @user.any_one_mention_me_in_comment_for_mail = "1"
+      @user.a_friend_follow_my_category_for_pn ="1"
+      @user.a_friend_follow_my_category_for_mail = "0"
+      @user.any_one_friend_follow_my_category_for_pn = "1"
+      @user.any_one_friend_follow_my_category_for_mail = "0"
+      @user.a_friend_shares_a_place_tip_or_entity_with_me_for_pn = "1"
+      @user.a_friend_shares_a_place_tip_or_entity_with_me_for_mail = "0"
+      @user.any_one_shares_a_place_tip_or_entity_with_me_for_pn = "1"
+      @user.any_one_shares_a_place_tip_or_entity_with_me_for_mail = "1"
+      @user.i_receive_a_friend_request_of_friend_confirmation_for_pn = "1"
+      @user.i_receive_a_friend_request_of_friend_confirmation_for_mail = "1"
+      @user.a_new_friend_from_facebook_join_we_like_for_pn = "1"
+      @user.keep_me_up_to_date_with_welike_news_and_update_for_pn = "0"
+      @user.keep_me_up_to_date_with_welike_news_and_update_for_mail ="1"
+      @user.send_me_weekly_updates_about_whats_my_friends_are_up_to_for_pn = "0"
+      @user.send_me_weekly_updates_about_whats_my_friends_are_up_to_for_mail = "1"
+      @user.save_photo_phone = "1"
+      @user.geotag_post ="1"
+      @user.post_are_private = "0"
+
+    
+      respond_to do |format|
+    if @user.save
+      @entity_setting = EntitySetting.new
+      @entity_setting.update_attributes(:user_id => @user.id, :sort_by => "Recent", :narrow_by_city => "", :narrow_by_sub_category => "")
+      @entity_setting.save
+      format.json {render :json => @user}
+    else
+      format.json {render :json => @user.errors}
+     end
+
+    end
+  end
+
+  def update
+    @user = User.where(:id => params[:user_id]).first
+    @user.update_attributes(params[:user])
+     if params[:cover_photo]
+      cover_photo = (params[:cover_photo]).gsub(" ", "+")
+      data = StringIO.new(Base64.decode64(cover_photo))
+      data.class.class_eval { attr_accessor :original_filename, :content_type }
+      data.original_filename = "cover photo.jpg"
+      data.content_type = "image/jpg"
+      @user.cover_photo = data
+      @user.cover_photo_url = @user.cover_photo
+    end
+    if params[:profile_picture]
+      pic = (params[:profile_picture]).gsub(" ", "+")
+      data = StringIO.new(Base64.decode64(pic))
+      data.class.class_eval { attr_accessor :original_filename, :content_type }
+      data.original_filename = "profile photo.jpg"
+      data.content_type = "image/jpg"
+      @user.profile_picture = data
+      @user.profile_picture_url = @user.profile_picture
+    end
+    
+    respond_to do |format|
+    if @user.save
+      format.json {render :json => @user}
+    else
+      format.json {render :json => @user.errors}
+    end
+    end
+  end
+
+  
+  def update_notifications
+    @user = User.where(:id => params[:user][:user_id]).first
+    @user.update_attributes(params[:user])
+    respond_to do |format|
+    if @user.save
+      format.json {render :json => @user}
+    else
+      format.json {render :json => @user.errors}
+    end
+    end
+  end
+  def change_password
+    user = User.authenticate_password(params[:email], params[:password])
+    respond_to do |format|
+      if user.present?
+       user.update_attributes(params[:change])
+      if user.save
+        
+        format.json {render :json => {:message => "Your Password is successfully Updated"}}
+      end
+    else
+      format.json {render :json => {:message => "Your Password does not match"}}
+      end
+    end
+  end
+
+
+
+ def other_user
+   user = {}
+  category = {}
+  groups = {}
+   @user = Array.new
+   @categories = Array.new
+   @group = Array.new
+   @users = User.where(:id => params[:other_user_id]).first
+   @user_categorise = UserCategory.where(:user_id => @users.id)
+   @user_categorise.each do |user_cate|
+     @master_cat = MasterCategory.where(:id => user_cate.master_category_id )
+     @master_cat.each do |catename|
+       cate = category.merge(:category_name => catename.category_name, :category_image => catename.category_image_url, :user_category_id => user_cate.id, :master_category_id => catename.id)
+       @categories << cate
+     end
+  end
+   @user_groups = Group.where(:group_owner_id => @users.id)
+   @user_groups.each do |user_group|
+     group = groups.merge(:_id => user_group.id, :group_name => user_group.group_name, :group_image_url => user_group.group_image_url)
+     @group << group
+   end
+   @user_rela = Relatoinship.where(:user_id => params[:user_id], :friend_user_id => params[:other_user_id]).first
+   if @user_rela.present?
+     user_data = user.merge(:user_id => @users.id, :email => @users.email, :user_name => @users.first_name, :cover_photo => @users.cover_photo_url, :profile_picture => @users.profile_picture_url, :is_friend => "YES")
+   @user << user_data
+   else
+     user_data = user.merge(:user_id => @users.id, :email => @users.email, :user_name => @users.first_name, :cover_photo => @users.cover_photo_url, :profile_picture => @users.profile_picture_url, :is_friend => "NO")
+   @user << user_data
+
+   end
+   respond_to do |format|
+     format.json {render :json => {:users  => @user , :category => @categories, :group => @group}}
+   end
+ end
+
+
+ def peoples
+   people = {}
+   @people = Array.new
+   @us = Array.new
+   @peo = Array.new
+    respond_to do |format|
+   @user_relesions = Relatoinship.where(:user_id => params[:user_id])
+   @user_relesions.each do |user_relations|
+     @peo << user_relations.friend_user_id
+   end
+   @people_friend = @peo.uniq
+   @people_friend.each do |friends_id|
+     @user = User.where(:id => friends_id).uniq{|p| p.id && p.first_name}
+     @user.each do |user|
+       pepel = people.merge(:friend_user_id => user.id, :profile_picture => user.profile_picture_url, :cover_photo => user.cover_photo_url, :user_name => user.first_name, :status => "YES")
+       @people << pepel
+     end
+   end
+   arrays = @people.sort{|a,b| [a[:friend_user_id]] <=> [b[:friend_user_id]]} && @people.sort_by { |k| k["user_name"]}
+   if !arrays.blank?
+      format.json {render :json => arrays}
+   else
+      format.json {render :json => {:message => "There is no data"}}
+   end
+ end
+ end
+ def user_feed
+  
+   @entity = Array.new
+   entity = {}
+   post = {}
+   @posts = Array.new
+   @CategoryPosts = Array.new
+   @rating = Array.new
+   entities ={}
+   @cat = Array.new
+   @master = Array.new
+   @category = Array.new
+   @users = User.where(:id => params[:user_id]).first
+   @user_category = UserCategory.where(:user_id => params[:user_id],  :is_active => "true")
+   @user_category.each do |user_category|
+      @master_category = MasterCategory.where(:id => user_category.master_category_id)
+      @master_category.each do |master_category|
+         @user_entity = UserEntity.where(:user_category_id => user_category.id)
+         @user_entity.each do |user_entity|
+           ue = user_entity.id
+           @ratings = Rating.where(:user_entity_id =>  ue.to_s )
+       if @ratings.present?
+       @ratings.each do |rat|
+        @rating << rat.rating_count
+       end
+       cd = (user_entity.rating_count).to_i
+       @rating << cd
+       total = 0
+       average = 0
+       @rating.each do |item|
+          total += item
+       end
+      average = total / @rating.length
+      else
+        @rating << (user_entity.rating_count).to_i
+        total = 0
+        average = 0
+        @rating.each do |item|
+           total += item
+        end
+       average = total / @rating.length
+       end
+             @post = Post.where(:user_entity_id => user_entity.id)
+             @post.each do |posts|
+               po = post.merge(:comment => posts.comment_text, :address => posts.address,:user_id => posts.user_id,:profile_picture => @users.profile_picture_url,:user_name => @users.first_name,:user_entity_id => posts.user_entity_id, :post_image => posts.post_image_url, :entity_name => user_entity.entity_name, :rating_count => posts.rating_count)
+                   @posts << po
+              end ### user post end
+               if @post.empty?
+                 enty = entity.merge(:master_category_id => master_category.id, :mastet_category_name => master_category.category_name,:user_entity_id => user_entity.id,:user_id => user_entity.user_id,:profile_picture => @users.profile_picture_url,:user_name => @users.first_name,:user_category_id => user_entity.user_category_id, :address => user_entity.address, :comment => user_entity.comment,:entity_name => user_entity.entity_name, :entity_image => user_entity.entity_image,:rating_count => average)
+                 en = entities.merge(:entity_info => enty)
+              @entity.push(en)
+             else
+               enty = entity.merge(:master_category_id => master_category.id, :mastet_category_name => master_category.category_name,:user_entity_id => user_entity.id,:user_id => user_entity.user_id,:profile_picture => @users.profile_picture_url,:user_name => @users.first_name,:user_category_id => user_entity.user_category_id, :address => user_entity.address, :comment => user_entity.comment,:entity_name => user_entity.entity_name, :entity_image => user_entity.entity_image, :post => @posts)
+               en = entities.merge(:entity_info => enty)
+              @entity.push(en)
+             end
+             
+         end ### user entity end
+         end ### user info
+     end ### user category end
+    respond_to do |format|
+     format.json {render :json => @entity}
+   end
+end
+
+
+ def news_feed
+      posts = {}
+      @posts = Array.new
+      entity = {}
+      entities = {}
+      @rating = Array.new
+      @entity = Array.new
+      @user_relations = Array.new
+      @category = Array.new
+      @master_cate = Array.new
+      @user_category_relationships = UserCategoryRelation.where(:user_id => params[:user_id])
+      @user_category_relationships.each do |user_relation|
+        @user_relations << user_relation.friend_user_id
+      end
+      @user_relations.push(params[:user_id]).uniq
+      @user_relations.each do |relations|
+        @usercategory = UserCategory.where(:user_id => relations)
+        @usercategory.each do |category|
+          @master_category = MasterCategory.where(:id => category.master_category_id)
+     @master_category.each do |master_category|
+       @user_entity = UserEntity.where(:user_category_id => category.id).paginate(:page => params[:page],:per_page => 20)
+         @user_entity.each do |user_entity|
+           u_eid = user_entity.id
+           @users = User.where(:id => user_entity.user_id)
+           @users.each do |users|
+             @entity_post = Post.where(:user_entity_id => user_entity.id)
+               @entity_post.each do |entity_post|
+                 po = posts.merge(:address => entity_post.address,:user_id => entity_post.user_id,:profile_picture => users.profile_picture_url,:user_name => users.first_name,:user_entity_id => entity_post.user_entity_id, :post_image => entity_post.post_image_url, :entity_name => user_entity.entity_name, :rating_count => entity_post.rating_count,:created_at => entity_post.created_at)
+                 @posts.push(po)
+               end
+             if @entity_post.empty?
+                 #cate = category.merge()
+                 @ratings = Rating.where(:user_entity_id => u_eid.to_s)
+                 if @ratings.present?
+           @ratings.each do |rat|
+             @rating << rat.rating_count
+           end
+          cd = (user_entity.rating_count).to_i
+          @rating << cd
+          total = 0
+
+        @rating.each do |item|
+           total += item
+        end
+        average = total / @rating.length
+      else
+        if user_entity.rating_count == "0"
+          average = "0"
+        else
+          @rating << (user_entity.rating_count).to_i
+          total = 0
+          average = 0
+          @rating.each do |item|
+           total += item
+        end
+        average = total / @rating.length
+        end
+     end
+     enty = entity.merge(:is => "Recent",:master_category_id => master_category.id, :mastet_category_name => master_category.category_name,:user_entity_id => user_entity.id, :user_id => user_entity.user_id,:profile_picture => users.profile_picture_url,:user_name => users.first_name,:user_category_id => user_entity.user_category_id, :address => user_entity.address, :comment => user_entity.comment,:entity_name => user_entity.entity_name, :entity_image => user_entity.entity_image,:rating_count => average,:created_at => user_entity.created_at)
+                  en = entities.merge(:entity_info => enty,:created_at => user_entity.created_at, :test=>user_entity.created_at.to_s(:std))
+                  @entity.push(en)
+             else
+                if @ratings.present?
+           @ratings.each do |rat|
+             @rating << rat.rating_count
+           end
+          cd = (user_entity.rating_count).to_i
+          @rating << cd
+          total = 0
+
+        @rating.each do |item|
+           total += item
+        end
+        average = total / @rating.length
+      else
+        if user_entity.rating_count == "0"
+          average = "0"
+        else
+          @rating << (user_entity.rating_count).to_i
+          total = 0
+          average = 0
+          @rating.each do |item|
+           total += item
+        end
+        average = total / @rating.length
+        end
+     end
+              # cate = category.merge(:master_category_id => master_category.id, :mastet_category_name => master_category.category_name)
+              enty = entity.merge(:is => "Recent",:master_category_id => master_category.id, :mastet_category_name => master_category.category_name,:user_entity_id => user_entity.id,:user_id => user_entity.user_id,:profile_picture => users.profile_picture_url,:user_name => users.first_name,:user_category_id => user_entity.user_category_id, :address => user_entity.address, :comment => user_entity.comment,:entity_name => user_entity.entity_name, :entity_image => user_entity.entity_image,:created_at => user_entity.created_at,:rating_count => average, :post => @posts)
+               en = entities.merge(:entity_info => enty, :created_at => user_entity.created_at, :test=>user_entity.created_at.to_s(:std))
+               @entity.push(en)
+             end
+           end
+         end
+         end
+        end
+      end
+      arrays =  @entity.sort{|a,b| [a[:user_entity_id]] <=> [b[:user_entity_id]] && [a[:user_id]] <=> [b[:user_id]]}
+     respond_to do |format|
+       format.json {render :json => arrays }
+     end
+   end
+
+   def friend_search
+      friends = {}
+      @friends = Array.new
+      @user_relesion = Relatoinship.where(:user_id => params[:user_id])
+      @user_relesion.each do |relations|
+        @users = User.where(:id => relations.friend_user_id, :first_name=>/.*#{params[:entity][:char]}*./i)
+        @users.each do |user|
+          fr = friends.merge(:user_name => user.first_name, :profile_picture => user.profile_picture_url, :user_id => user.id)
+          @friends << fr
+        end
+      end
+      respond_to do |format|
+        if !@friends.blank?
+          format.json {render :json => @friends}
+        end
+        format.json {render :json => {:message => "There is no friend"}}
+      end
+    end
+
+    def add_facebook_id
+      @user = User.where(:id => params[:user_id]).first
+      @user.update_attributes(:facebook_id => params[:facebook_id])
+      respond_to do |format|
+        if @user.save
+          format.json {render :json => {:message => "Save Facebook Id"}}
+        else
+          format.json {render :json => {:message => "Error"}}
+        end
+      end
+   end
+
+ def search_friend_on_people
+   people = {}
+   @people = Array.new
+   o_u = Array.new
+   @peo = Array.new
+   @user_relesions = Relatoinship.where(:user_id => params[:user_id]).uniq{|p| p.user_id && p.friend_user_id}
+   @user_relesions.each do |user_relations|
+     @peo << user_relations.friend_user_id
+     @userr = User.where(:id => user_relations.friend_user_id, :first_name =>/.*#{params[:user_name][:char]}*./i ).uniq{|p| p.id && p.first_name}
+      @userr.each do |us|
+    pepel = people.merge(:friend_user_id => us.id, :profile_picture => us.profile_picture_url, :cover_photo => us.cover_photo_url, :user_name => us.first_name, :status => "YES")
+    @people << pepel
+  end
+  @userrrr = User.all
+  @userrrr.each do |us|
+   end
+   end
+   
+  @peo.push(params[:user_id])
+@users = User.all
+@users.each do |users|
+  o_u << users.id
+end
+cmm = o_u - @peo
+cmm.each do |user|
+  @user = User.where(:id => user, :first_name =>/.*#{params[:user_name][:char]}*./i ).uniq{|p| p.id && p.first_name}
+  @user.each do |us|
+    pepel = people.merge(:friend_user_id => us.id, :profile_picture => us.profile_picture_url, :cover_photo => us.cover_photo_url, :user_name => us.first_name, :status => "NO")
+    @people << pepel
+  end
+end
+#   @users = User.excludes.in(:id => @peo).where(:first_name => /.*#{params[:user_name][:char]}*./i)#.uniq{|p| p.id}
+#      @users.each do |us|
+        
+#      end
+arrays = @people.sort{|a,b| [a[:user_id]] <=> [b[:user_id]]} && @people.sort_by { |k| k["user_name"]}
+
+  respond_to do |format|
+     format.json {render :json => arrays}
+   end
+ end
+
+
+def delete_user
+  @userss = Comment.where(:user_id => params[:user_id])
+  respond_to do |format|
+  if @userss.present?
+    @userss.each do |cat|
+      cat.destroy
+    end
+    format.json {render :json => {:message => "Deleted"}}
+  else
+    format.json {render :json => {:message => "Error"}}
+  end
+  end
+end
+
+
+end
+# curl -X POST -d "user_id=51419daef7e4f31bea000032" http://localhost:3000/user/peoples.json
+# curl -X POST -d "user_id=51419daef7e4f31bea000032" http://localhost:3000/user/add_facebook_id.json

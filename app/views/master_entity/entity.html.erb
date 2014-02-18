@@ -1,0 +1,5 @@
+<%= @entities.to_json %>
+
+<%= @entities.each do |i| %>
+  <%= image_tag i.entity_image.url, :size => "200x200" %>
+<% end %>

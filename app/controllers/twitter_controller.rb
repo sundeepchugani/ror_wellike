@@ -1,0 +1,41 @@
+class TwitterController < ApplicationController
+  def twitters  # <..........Comment.....the create method create user using Twitter account.
+    @facebook = Array.new
+    facebook = {}
+    if params[:user][:provider]
+        @authhash = Hash.new #<..........Comment..... {"name" => '', "screen_name" => '', "twitter_id" =>'',  "provider" =>''} create hash for contain value in same formate
+        @authhash[:provider] = params[:user][:provider] or ''
+          if params[:user][:provider] == 'twitter'
+            @authhash[:name] =  params[:user][:name] or ''
+            @authhash[:screen_name] =  params[:user][:screen_name] or ''
+           @authhash[:twitter_id] =  params[:user][:twitter_id].to_s or ''
+            @authhash[:profile_picture_url] =  params[:user][:profile_picture].to_s or ''
+            @authhash[:cover_photo_url] =  params[:user][:cover_photo].to_s or ''
+          end
+
+          if @authhash[:twitter_id] != '' and @authhash[:provider] != ''
+            @auth_service = Twitter.where(:twitter_id => @authhash[:twitter_id]).first
+            respond_to do |format|
+                  if @auth_service.present? # <..........Comment.....if user is already registerd then the user profile update only.
+                    fb = facebook.merge(:screen_name => @auth_service.screen_name, :user_id =>@auth_service.id , :first_name =>@auth_service.first_name,:twitter_id =>@auth_service.twitter_id,:provider=> @auth_service.provider, :gender => @auth_service.gender,:last_login_time => Time.now, :privacy => @auth_service.privacy,:friend_like_my_activity_for_pn => @auth_service.friend_like_my_activity_for_pn,:friend_like_my_activity_for_mail => @auth_service.friend_like_my_activity_for_mail,  :any_one_like_my_activity_for_pn => @auth_service.any_one_like_my_activity_for_pn ,:any_one_like_my_activity_for_mail => @auth_service.any_one_like_my_activity_for_mail ,:friend_mention_me_in_comment_for_pn => @auth_service.friend_mention_me_in_comment_for_pn,:friend_mention_me_in_comment_for_mail => @auth_service.friend_mention_me_in_comment_for_mail, :any_one_mention_me_in_comment_for_pn =>    @auth_service.any_one_mention_me_in_comment_for_pn ,   :any_one_mention_me_in_comment_for_mail =>  @auth_service.any_one_mention_me_in_comment_for_mail,   :a_friend_follow_my_category_for_pn =>  @auth_service.a_friend_follow_my_category_for_pn ,   :a_friend_follow_my_category_for_mail =>  @auth_service.a_friend_follow_my_category_for_mail,   :any_one_friend_follow_my_category_for_pn =>  @auth_service.any_one_friend_follow_my_category_for_pn ,  :any_one_friend_follow_my_category_for_mail =>   @auth_service.any_one_friend_follow_my_category_for_mail ,  :a_friend_shares_a_place_tip_or_entity_with_me_for_pn  => @auth_service.a_friend_shares_a_place_tip_or_entity_with_me_for_pn ,   :a_friend_shares_a_place_tip_or_entity_with_me_for_mail =>  @auth_service.a_friend_shares_a_place_tip_or_entity_with_me_for_mail ,   :any_one_shares_a_place_tip_or_entity_with_me_for_pn =>  @auth_service.any_one_shares_a_place_tip_or_entity_with_me_for_pn ,   :any_one_shares_a_place_tip_or_entity_with_me_for_mail =>  @auth_service.any_one_shares_a_place_tip_or_entity_with_me_for_mail ,   :i_receive_a_friend_request_of_friend_confirmation_for_pn =>  @auth_service.i_receive_a_friend_request_of_friend_confirmation_for_pn ,  :i_receive_a_friend_request_of_friend_confirmation_for_mail => @auth_service.i_receive_a_friend_request_of_friend_confirmation_for_mail ,  :a_new_friend_from_facebook_join_we_like_for_pn =>   @auth_service.a_new_friend_from_facebook_join_we_like_for_pn,   :keep_me_up_to_date_with_welike_news_and_update_for_pn =>  @auth_service.keep_me_up_to_date_with_welike_news_and_update_for_pn,  :keep_me_up_to_date_with_welike_news_and_update_for_mail =>   @auth_service.keep_me_up_to_date_with_welike_news_and_update_for_mail,   :send_me_weekly_updates_about_whats_my_friends_are_up_to_for_pn =>  @auth_service.send_me_weekly_updates_about_whats_my_friends_are_up_to_for_pn ,   :send_me_weekly_updates_about_whats_my_friends_are_up_to_for_mail =>   @auth_service.send_me_weekly_updates_about_whats_my_friends_are_up_to_for_mail , :geotag_post =>  @auth_service.geotag_post ,:post_are_private => @auth_service.post_are_private ,   :profile_picture_url =>  @auth_service.profile_picture_url,:cover_photo_url => @auth_service.cover_photo_url , :already_exists => "1")
+                     @facebook << fb
+                     format.json {render :json => @facebook}
+                  else
+                    @user = Twitter.create # <..........Comment.....if user does not exist then we will create the user.
+                    @user.update_attributes(:last_login_time => Time.now,:screen_name => @authhash[:screen_name],:first_name => @authhash[:name],:twitter_id=>@authhash[:twitter_id],:provider=>@authhash[:provider], :profile_picture_url => @authhash[:profile_picture_url], :cover_photo_url => @authhash[:cover_photo_url])
+                    @user.save!
+                    @entity_setting = EntitySetting.new
+                    @entity_setting.update_attributes(:user_id => @user.id, :sort_by => "Recent", :narrow_by_city => "", :narrow_by_sub_category => "")
+                    @entity_setting.save
+                    fb = facebook.merge(:user_id =>@user.id , :first_name =>@user.first_name,:twitter_id =>@user.twitter_id,:provider=> @user.provider, :gender => @user.gender,:last_login_time => Time.now, :privacy => @user.privacy,:friend_like_my_activity_for_pn => @user.friend_like_my_activity_for_pn,:friend_like_my_activity_for_mail => @user.friend_like_my_activity_for_mail,  :any_one_like_my_activity_for_pn => @user.any_one_like_my_activity_for_pn ,:any_one_like_my_activity_for_mail => @user.any_one_like_my_activity_for_mail ,:friend_mention_me_in_comment_for_pn => @user.friend_mention_me_in_comment_for_pn,:friend_mention_me_in_comment_for_mail => @user.friend_mention_me_in_comment_for_mail, :any_one_mention_me_in_comment_for_pn =>    @user.any_one_mention_me_in_comment_for_pn ,   :any_one_mention_me_in_comment_for_mail =>  @user.any_one_mention_me_in_comment_for_mail,   :a_friend_follow_my_category_for_pn =>  @user.a_friend_follow_my_category_for_pn ,   :a_friend_follow_my_category_for_mail =>  @user.a_friend_follow_my_category_for_mail,   :any_one_friend_follow_my_category_for_pn =>  @user.any_one_friend_follow_my_category_for_pn ,  :any_one_friend_follow_my_category_for_mail =>   @user.any_one_friend_follow_my_category_for_mail ,  :a_friend_shares_a_place_tip_or_entity_with_me_for_pn  => @user.a_friend_shares_a_place_tip_or_entity_with_me_for_pn ,   :a_friend_shares_a_place_tip_or_entity_with_me_for_mail =>  @user.a_friend_shares_a_place_tip_or_entity_with_me_for_mail ,   :any_one_shares_a_place_tip_or_entity_with_me_for_pn =>  @user.any_one_shares_a_place_tip_or_entity_with_me_for_pn ,   :any_one_shares_a_place_tip_or_entity_with_me_for_mail =>  @user.any_one_shares_a_place_tip_or_entity_with_me_for_mail ,   :i_receive_a_friend_request_of_friend_confirmation_for_pn =>  @user.i_receive_a_friend_request_of_friend_confirmation_for_pn ,  :i_receive_a_friend_request_of_friend_confirmation_for_mail => @user.i_receive_a_friend_request_of_friend_confirmation_for_mail ,  :a_new_friend_from_facebook_join_we_like_for_pn =>   @user.a_new_friend_from_facebook_join_we_like_for_pn,   :keep_me_up_to_date_with_welike_news_and_update_for_pn =>  @user.keep_me_up_to_date_with_welike_news_and_update_for_pn,  :keep_me_up_to_date_with_welike_news_and_update_for_mail =>   @user.keep_me_up_to_date_with_welike_news_and_update_for_mail,   :send_me_weekly_updates_about_whats_my_friends_are_up_to_for_pn =>  @user.send_me_weekly_updates_about_whats_my_friends_are_up_to_for_pn ,   :send_me_weekly_updates_about_whats_my_friends_are_up_to_for_mail =>   @user.send_me_weekly_updates_about_whats_my_friends_are_up_to_for_mail , :geotag_post =>  @user.geotag_post ,:post_are_private => @user.post_are_private ,   :profile_picture_url =>  @user.profile_picture_url,:cover_photo_url => @user.cover_photo_url , :already_exists => "0")
+                     @facebook << fb
+                     format.json {render :json => @facebook}
+                   end
+               end
+       end
+
+
+    end
+end
+
+end

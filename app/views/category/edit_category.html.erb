@@ -1,0 +1,19 @@
+<%= form_for(@edit_category, :as =>:category, :url =>"edit_cate",:id => @edit_category.id,:method => "post",:html=>{:multipart=>"true"}) do |f| %>
+
+
+
+   <label>Category Name</label> <br/>
+  <%= f.text_field :category_name%><br/><br/>
+  <%=  f.hidden_field :update, :value=>params[:id]  , :name=> "update"%>
+
+   <label>Category Image</label><br/>
+<%= f.file_field :category_image%><br/><br/>
+
+<div class="actions">
+          <%= f.submit :Save %>
+        </div>
+
+
+       <!-- <a href="#" class="submitdeal">Save</a> -->
+
+     <%end%>

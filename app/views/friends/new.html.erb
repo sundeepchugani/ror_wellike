@@ -1,0 +1,24 @@
+<h1>For friend List</h1>
+
+<%= form_for @friend_list, :as => :friends, :url => friends_create_path, :method => "get" do |f| %>
+<p>
+<label>Facebook ID</label>
+<%#= f.text_field :facebook_id %>
+</p>
+
+<p>
+<label>Facebook Token</label>
+<%= f.text_field :fb_token %>
+</p>
+
+
+<p>
+<label>Provider</label>
+<%= f.text_field :provider %>
+</p>
+
+
+<p>
+<%= f.submit :Submit %>
+</p>
+<% end %>

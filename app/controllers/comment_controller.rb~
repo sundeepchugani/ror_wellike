@@ -1,0 +1,62 @@
+class CommentController < ApplicationController
+  def post_comments
+    @comment = Comment.new(params[:comment])
+    respond_to do |format|
+      if @comment.save
+        format.json {render :json => {:message => "comment_successfully"}}
+      else
+        format.json {render :json => {:message => "Some Errors during Comment"}}
+      end
+    end
+  end
+
+
+
+   def post_comment
+      @comment = Comment.create
+      @comment.update_attributes(:post_id => params[:post_id],:user_entity_id => params[:user_entity_id], :user_id => params[:user_id], :all_tag => params[:all_tag], :all_user_name_tag => params[:all_user_name_tag], :is_new_comment=> "1",:is_active => "1",:comment_text => params[:comment_text])
+       respond_to do |format|
+        if @comment.save
+          format.json {render :json => {:message => "comment_successfully"}}
+        else
+          format.json {render :json => {:message => "Some Errors during Comment"}}
+        end
+       end
+   end
+
+
+ def comment_text
+    @arr =Array.new
+    arr1 = {}
+    @arr1 = Array.new
+    @comment_get = Comment.where(:post_id => params[:post_id], :user_id => params[:user_id]).last
+    #x = @comment_get.comment_text
+    #y = @comment_get.comment_text
+    x = "This is @ashvin Gargav Using @yogesh Code."
+    y = "This is @ashvin Gargav Using @yogesh Code."
+
+    c = x.split(" ")
+    c.each do |i|
+      if i.include? "@"
+       cd = i.slice!(1..-1)
+        @arr << cd
+      else
+    end
+    end
+   puts":::::::::::::::::::::::::::::::::::::::::::#{@arr.inspect}"
+   @arr.each do |op|
+      final= y.gsub("@#{op}","<b><a href ='' style = 'color:blue; text-decoration: none' >#{op}<a></b>")
+      y=final
+      puts"\n\n+++++++++++++++++++++++++final++++++++++++++++++\n\n#{final.inspect}"
+   end
+   @comment_get.comment_text = y
+   respond_to do |format|
+        if !@comment_get.blank?
+
+          format.json{render :json => @comment_get}         
+        else
+          format.json{render :json => "ERROR"}
+        end
+      end   
+  end
+  end
