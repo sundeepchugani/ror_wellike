@@ -29,12 +29,13 @@ environments:
     migrate: false
   ror_weliike:
     migrate: false
-Account: WeLiike
-Application: weliikes
-Environment: weliike
-Input Ref: master
-Resolved Ref: 6cf8ad980609e146e246b7049bb65afff16c9fca
-Commit: 6cf8ad980609e146e246b7049bb65afff16c9fca
-Migrate: false
-Deployed by: Sundeep Chugani
-Started at: 2013-03-21 15:24:33.000000000 +05:30
+Account:         WeLiike
+Application:     ror_wellike
+Environment:     ror_weliike
+Input Ref:       master
+Resolved Ref:    9117c0cc6d57fb5ff086e0bb34902c1f9e8b7323
+Commit:          9117c0cc6d57fb5ff086e0bb34902c1f9e8b7323
+Migrate:         false
+Deployed by:     Sundeep Chugani
+Started at:      2014-02-19 12:17:41 +0530
+

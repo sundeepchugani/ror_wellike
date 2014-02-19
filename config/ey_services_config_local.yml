@@ -3,4 +3,4 @@
 mongolab:
   MONGOLAB_URI: mongodb://localhost:27017
 base:
-  app_environment_name: weliikes / weliike_development
+  app_environment_name:  ror_wellike /  ror_weliike
