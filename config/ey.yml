@@ -27,6 +27,8 @@ environments:
     migrate: false
   weliike_app:
     migrate: false
+  ror_weliike:
+    migrate: false
 Account: WeLiike
 Application: weliikes
 Environment: weliike
