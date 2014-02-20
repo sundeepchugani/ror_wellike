@@ -21,6 +21,7 @@ gem 'jquery-rails'
 gem 'geocoder'
 gem 'kaminari'
 gem 'grocer'
+gem "json", "~> 1.8.1"
 gem "will_paginate_mongoid"
 group :assets do
   gem 'sass-rails',   '~> 3.2.3'

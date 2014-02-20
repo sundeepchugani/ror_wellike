@@ -179,6 +179,7 @@ DEPENDENCIES
   grocer
   haml
   jquery-rails
+  json (~> 1.8.1)
   kaminari
   mongo
   mongoid
